@@ -1,107 +1,252 @@
-# AnyList Recipe Converter
+# AnyList Recipes - Vercel Blob Storage
 
-A simple static site for converting recipes to AnyList-compatible format using schema.org/Recipe JSON-LD markup.
+A Next.js application that uses Vercel Blob storage to host recipe HTML files with schema.org/Recipe JSON-LD markup. This provides a simple API to store and retrieve recipe HTML files that can be imported into AnyList.
 
-## What This Is For
+## Features
 
-AnyList (grocery/recipe app) can import recipes from any webpage that has schema.org/Recipe structured data. Many recipe sites don't have this markup, so this tool lets you paste a recipe and generate a properly formatted page that AnyList can import.
+- **Upload API**: Store recipe HTML files to Vercel Blob storage
+- **Retrieve API**: Serve recipe HTML files with proper content-type headers
+- **Public URLs**: Get shareable URLs for importing recipes into AnyList
+- **TypeScript**: Full type safety throughout the application
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Vercel Blob Storage (@vercel/blob)
+- React 19
+
+## Prerequisites
+
+- Node.js 18+
+- A Vercel account (free tier works)
+- npm or yarn
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Create a Vercel Blob Store
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Navigate to **Storage** → **Blob**
+3. Click **Create Blob Store**
+4. Name it (e.g., "anylist-recipes-storage")
+5. Copy the **Read-Write Token** (starts with `vercel_blob_rw_`)
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` and add your token:
+
+```env
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxxxxxxxxxxxx
+```
+
+### 4. Run Locally
+
+```bash
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see the landing page.
+
+### 5. Deploy to Vercel
+
+```bash
+# Install Vercel CLI if you haven't
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+Or push to GitHub and connect the repository in the Vercel dashboard.
+
+**Important**: Set the `BLOB_READ_WRITE_TOKEN` environment variable in your Vercel project settings.
+
+## API Documentation
+
+### POST /api/upload
+
+Upload a recipe HTML file to Blob storage.
+
+**Request:**
+
+```json
+{
+  "slug": "lyonin-kana",
+  "html": "<!DOCTYPE html><html>...</html>"
+}
+```
+
+**Response:**
+
+```json
+{
+  "url": "https://anylist-recipes.vercel.app/api/recipes/lyonin-kana",
+  "blobUrl": "https://xxxxxxxxxxxxx.public.blob.vercel-storage.com/recipes/lyonin-kana.html",
+  "slug": "lyonin-kana"
+}
+```
+
+**Example:**
+
+```bash
+curl -X POST https://anylist-recipes.vercel.app/api/upload \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "lyonin-kana",
+    "html": "<!DOCTYPE html><html><head><title>Recipe</title></head><body><h1>Recipe</h1></body></html>"
+  }'
+```
+
+### GET /api/recipes/[slug]
+
+Retrieve a recipe HTML file by its slug.
+
+**Example:**
+
+```bash
+curl https://anylist-recipes.vercel.app/api/recipes/lyonin-kana
+```
+
+Returns the HTML content with `Content-Type: text/html; charset=utf-8`.
+
+## Recipe HTML Format
+
+Your recipe HTML should include schema.org/Recipe JSON-LD markup for AnyList compatibility:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recipe Name</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    "name": "Recipe Name",
+    "description": "Recipe description",
+    "recipeIngredient": [
+      "2 cups flour",
+      "1 cup sugar"
+    ],
+    "recipeInstructions": [
+      {
+        "@type": "HowToStep",
+        "text": "Mix ingredients"
+      },
+      {
+        "@type": "HowToStep",
+        "text": "Bake at 350°F"
+      }
+    ],
+    "prepTime": "PT15M",
+    "cookTime": "PT30M",
+    "recipeYield": "4 servings"
+  }
+  </script>
+</head>
+<body>
+  <h1>Recipe Name</h1>
+  <!-- Your recipe content here -->
+</body>
+</html>
+```
+
+## Usage with AnyList
+
+1. Upload your recipe HTML using the `/api/upload` endpoint
+2. Copy the returned `url` (e.g., `https://anylist-recipes.vercel.app/api/recipes/lyonin-kana`)
+3. In AnyList, import the recipe using this URL
+4. AnyList will parse the schema.org/Recipe JSON-LD markup
 
 ## Project Structure
 
 ```
-anylist-reseptit/
-├── index.html          # Main converter UI with recipe list
-├── add-recipe.js       # CLI tool for adding recipes automatically
-├── package.json        # Project configuration
-├── recipes/
-│   └── lyonin-kana.html   # Sample recipe for testing
-├── style.css           # Shared styles
-├── .nojekyll           # Disable Jekyll processing for GitHub Pages
+anylist-recipes/
+├── app/
+│   ├── api/
+│   │   ├── upload/
+│   │   │   └── route.ts          # Upload recipe endpoint
+│   │   └── recipes/
+│   │       └── [slug]/
+│   │           └── route.ts      # Retrieve recipe endpoint
+│   ├── layout.tsx                # Root layout
+│   └── page.tsx                  # Landing page
+├── .env.example                  # Environment variable template
+├── .env.local.example            # Local env template
+├── .gitignore
+├── next.config.ts
+├── package.json
+├── tsconfig.json
 └── README.md
 ```
 
-## How to Use
-
-### Method 1: Automated Recipe Addition (Recommended)
-
-Use the command-line tool to automatically add recipes to your collection:
+## Development
 
 ```bash
-node add-recipe.js
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linting
+npm run lint
 ```
 
-The script will prompt you for recipe details and automatically:
-- Generate the recipe HTML file
-- Save it to the `recipes/` folder
-- Update `index.html` to include the new recipe in the list
+## Security Notes
 
-You can also provide recipe data as a JSON file:
+- The `BLOB_READ_WRITE_TOKEN` should be kept secret
+- Slugs are validated to only allow lowercase letters, numbers, and hyphens
+- All uploaded HTML is stored as-is (no sanitization) - ensure you trust the source
+- Recipe URLs are publicly accessible by design
 
-```bash
-node add-recipe.js recipe-data.json
-```
+## Environment Variables
 
-Example JSON format:
-```json
-{
-  "name": "Chocolate Chip Cookies",
-  "description": "Classic homemade cookies",
-  "prepTime": "15",
-  "cookTime": "12",
-  "servings": "24",
-  "ingredients": "2 cups flour\n1 cup butter\n1 cup sugar",
-  "instructions": "Mix ingredients\nBake at 350°F for 12 minutes"
-}
-```
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob storage read-write token | Yes |
 
-After adding a recipe, commit and push the changes:
-```bash
-git add recipes/ index.html
-git commit -m "Add recipe: [Recipe Name]"
-git push
-```
+## Troubleshooting
 
-### Method 2: Using the Web Interface
+### "Missing BLOB_READ_WRITE_TOKEN" error
 
-1. Open `index.html` in your browser (or visit the GitHub Pages URL)
-2. Fill in the recipe details in the form
-3. Click "Generate Recipe HTML"
-4. Download the generated HTML file
-5. Manually save it to `recipes/` and update the recipes array in `index.html`
+Make sure you've:
+1. Created a Vercel Blob store
+2. Copied the read-write token
+3. Added it to `.env.local` (local) or Vercel project settings (production)
 
-### Viewing Saved Recipes
+### Recipe not found (404)
 
-- Visit the main page to see all saved recipes
-- Click on any recipe to view it
-- Open recipe pages in your browser to import them to AnyList
+- Check that the slug matches exactly (case-sensitive)
+- Verify the recipe was uploaded successfully
+- Check the Vercel Blob dashboard to see stored files
 
-### Testing with Sample Recipe
+### Upload fails
 
-Open `recipes/lyonin-kana.html` in your browser to see an example of a properly formatted recipe page with JSON-LD markup. You can use this to test AnyList's import functionality.
+- Ensure the `BLOB_READ_WRITE_TOKEN` is valid
+- Check that your HTML is a valid string (properly escaped JSON)
+- Verify the slug format (only lowercase letters, numbers, hyphens)
 
-## Technical Details
+## License
 
-The converter generates HTML pages with embedded JSON-LD structured data following the [schema.org/Recipe](https://schema.org/Recipe) specification. This includes:
+MIT
 
-- Recipe name and description
-- Preparation and cooking times (in ISO 8601 duration format: PT20M = 20 minutes)
-- Yield/servings
-- Ingredients list
-- Step-by-step instructions (using HowToStep format)
+## Contributing
 
-The JSON-LD is embedded in a `<script type="application/ld+json">` tag, which is what AnyList reads to import the recipe.
-
-## No Build Process Required
-
-This is a simple static site using vanilla HTML, CSS, and JavaScript. No frameworks, no build tools, no dependencies. Just open `index.html` in a browser and it works.
-
-## Deploying
-
-You can deploy this to any static hosting service:
-
-- GitHub Pages
-- Netlify
-- Vercel
-- Any web server
-
-Just upload the files and you're done.
+Feel free to open issues or submit pull requests!
