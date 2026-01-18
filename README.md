@@ -10,28 +10,70 @@ AnyList (grocery/recipe app) can import recipes from any webpage that has schema
 
 ```
 anylist-reseptit/
-├── index.html          # Main converter UI
+├── index.html          # Main converter UI with recipe list
+├── add-recipe.js       # CLI tool for adding recipes automatically
+├── package.json        # Project configuration
 ├── recipes/
 │   └── lyonin-kana.html   # Sample recipe for testing
 ├── style.css           # Shared styles
+├── .nojekyll           # Disable Jekyll processing for GitHub Pages
 └── README.md
 ```
 
 ## How to Use
 
-### Converting a Recipe
+### Method 1: Automated Recipe Addition (Recommended)
 
-1. Open `index.html` in your browser
-2. Fill in the recipe details:
-   - Recipe name (required)
-   - Description (optional)
-   - Prep time, cook time, servings (optional)
-   - Ingredients (required, one per line)
-   - Instructions (required, one step per line)
+Use the command-line tool to automatically add recipes to your collection:
+
+```bash
+node add-recipe.js
+```
+
+The script will prompt you for recipe details and automatically:
+- Generate the recipe HTML file
+- Save it to the `recipes/` folder
+- Update `index.html` to include the new recipe in the list
+
+You can also provide recipe data as a JSON file:
+
+```bash
+node add-recipe.js recipe-data.json
+```
+
+Example JSON format:
+```json
+{
+  "name": "Chocolate Chip Cookies",
+  "description": "Classic homemade cookies",
+  "prepTime": "15",
+  "cookTime": "12",
+  "servings": "24",
+  "ingredients": "2 cups flour\n1 cup butter\n1 cup sugar",
+  "instructions": "Mix ingredients\nBake at 350°F for 12 minutes"
+}
+```
+
+After adding a recipe, commit and push the changes:
+```bash
+git add recipes/ index.html
+git commit -m "Add recipe: [Recipe Name]"
+git push
+```
+
+### Method 2: Using the Web Interface
+
+1. Open `index.html` in your browser (or visit the GitHub Pages URL)
+2. Fill in the recipe details in the form
 3. Click "Generate Recipe HTML"
-4. Copy the generated HTML or click "Download HTML"
-5. Save the HTML file and open it in a browser
-6. Use AnyList's import feature to import the recipe from that page
+4. Download the generated HTML file
+5. Manually save it to `recipes/` and update the recipes array in `index.html`
+
+### Viewing Saved Recipes
+
+- Visit the main page to see all saved recipes
+- Click on any recipe to view it
+- Open recipe pages in your browser to import them to AnyList
 
 ### Testing with Sample Recipe
 
