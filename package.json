@@ -1,0 +1,18 @@
+{
+  "name": "anylist-recipe-converter",
+  "version": "1.0.0",
+  "description": "Convert recipes to AnyList-compatible format with automatic file management",
+  "main": "add-recipe.js",
+  "scripts": {
+    "add-recipe": "node add-recipe.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "anylist",
+    "recipe",
+    "converter",
+    "schema.org"
+  ],
+  "author": "",
+  "license": "MIT"
+}
