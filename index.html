@@ -11,6 +11,11 @@
         <h1>AnyList Recipe Converter</h1>
         <p class="subtitle">Convert recipes to AnyList-compatible format with schema.org/Recipe JSON-LD markup</p>
 
+        <div class="recipe-list-section">
+            <h2>Saved Recipes</h2>
+            <div id="recipeList"></div>
+        </div>
+
         <form id="recipeForm">
             <div class="form-group">
                 <label for="recipeName">Recipe Name *</label>
@@ -56,15 +61,43 @@
             <h2>Generated HTML</h2>
             <p class="subtitle">Copy this HTML or download it, then open in a browser and import to AnyList</p>
             <textarea id="output" readonly></textarea>
-            <button type="button" class="download-btn" id="downloadBtn">Download HTML</button>
+            <div class="button-group">
+                <button type="button" class="download-btn" id="downloadBtn">Download HTML</button>
+            </div>
+            <p class="info-note">💡 To add this recipe to the list above, save the downloaded file to the <code>recipes/</code> folder and update the recipes array in this page's source code.</p>
         </div>
     </div>
 
     <script>
+        // Recipe list - update this array when adding new recipes
+        const recipes = [
+            { name: "Lyonin Kana (Chicken Lyon Style)", file: "lyonin-kana.html" }
+        ];
+
         const form = document.getElementById('recipeForm');
         const outputSection = document.getElementById('outputSection');
         const output = document.getElementById('output');
         const downloadBtn = document.getElementById('downloadBtn');
+        const recipeList = document.getElementById('recipeList');
+
+        // Display recipe list on page load
+        function displayRecipeList() {
+            if (recipes.length === 0) {
+                recipeList.innerHTML = '<p class="no-recipes">No recipes yet. Create your first recipe using the form below!</p>';
+                return;
+            }
+
+            const listHTML = recipes.map(recipe =>
+                `<div class="recipe-item">
+                    <a href="recipes/${recipe.file}" target="_blank">${recipe.name}</a>
+                </div>`
+            ).join('');
+
+            recipeList.innerHTML = listHTML;
+        }
+
+        // Initialize on page load
+        displayRecipeList();
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
