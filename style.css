@@ -234,3 +234,37 @@ ul li, ol li {
     gap: 10px;
     margin: 15px 0;
 }
+
+.recipe-list {
+    display: grid;
+    gap: 10px;
+}
+
+.info-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #3498db;
+}
+
+.info-box h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.info-box ol, .info-box ul {
+    margin-left: 20px;
+}
+
+.info-box pre {
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.info-box code {
+    font-family: 'Courier New', monospace;
+    color: #e74c3c;
+}

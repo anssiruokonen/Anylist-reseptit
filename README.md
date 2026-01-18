@@ -1,6 +1,6 @@
-# AnyList Recipe Converter
+# AnyList Recipe Collection
 
-A simple static site for converting recipes to AnyList-compatible format using schema.org/Recipe JSON-LD markup.
+A simple static recipe collection site with AnyList-compatible format using schema.org/Recipe JSON-LD markup. Pure HTML with automated recipe management via CLI tool.
 
 ## What This Is For
 
@@ -61,14 +61,6 @@ git commit -m "Add recipe: [Recipe Name]"
 git push
 ```
 
-### Method 2: Using the Web Interface
-
-1. Open `index.html` in your browser (or visit the GitHub Pages URL)
-2. Fill in the recipe details in the form
-3. Click "Generate Recipe HTML"
-4. Download the generated HTML file
-5. Manually save it to `recipes/` and update the recipes array in `index.html`
-
 ### Viewing Saved Recipes
 
 - Visit the main page to see all saved recipes
@@ -91,9 +83,9 @@ The converter generates HTML pages with embedded JSON-LD structured data followi
 
 The JSON-LD is embedded in a `<script type="application/ld+json">` tag, which is what AnyList reads to import the recipe.
 
-## No Build Process Required
+## Pure Static HTML
 
-This is a simple static site using vanilla HTML, CSS, and JavaScript. No frameworks, no build tools, no dependencies. Just open `index.html` in a browser and it works.
+The index page is 100% static HTML with zero JavaScript - just pure HTML and CSS. Recipe pages contain only the necessary JSON-LD structured data. No frameworks, no build tools required for the site itself. The CLI tool (add-recipe.js) requires Node.js but is only used for adding recipes, not for viewing them.
 
 ## Deploying
 

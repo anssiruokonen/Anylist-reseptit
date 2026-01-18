@@ -121,30 +121,49 @@ ${instructionsHTML}
 `;
 }
 
-// Update index.html recipes array
+// Update index.html recipe list
 function updateIndexHTML(recipeName, filename) {
     const indexPath = path.join(__dirname, 'index.html');
     let indexContent = fs.readFileSync(indexPath, 'utf8');
 
-    // Find the recipes array
-    const recipesArrayMatch = indexContent.match(/const recipes = \[([\s\S]*?)\];/);
-    if (!recipesArrayMatch) {
-        console.error('Error: Could not find recipes array in index.html');
+    // Find the recipe list section between markers
+    const startMarker = '<!-- RECIPE_LIST_START -->';
+    const endMarker = '<!-- RECIPE_LIST_END -->';
+
+    const startIndex = indexContent.indexOf(startMarker);
+    const endIndex = indexContent.indexOf(endMarker);
+
+    if (startIndex === -1 || endIndex === -1) {
+        console.error('Error: Could not find recipe list markers in index.html');
         return false;
     }
 
-    const currentArray = recipesArrayMatch[1].trim();
-    const newEntry = `{ name: "${recipeName}", file: "${filename}" }`;
+    // Extract current recipe list
+    const beforeList = indexContent.substring(0, startIndex + startMarker.length);
+    const afterList = indexContent.substring(endIndex);
+    const currentList = indexContent.substring(startIndex + startMarker.length, endIndex);
 
-    let newArray;
-    if (currentArray === '') {
-        newArray = `\n            ${newEntry}\n        `;
-    } else {
-        newArray = currentArray + `,\n            ${newEntry}`;
+    // Parse existing recipes
+    const recipeItems = [];
+    const itemRegex = /<div class="recipe-item">\s*<a href="recipes\/(.*?)">(.*?)<\/a>\s*<\/div>/g;
+    let match;
+
+    while ((match = itemRegex.exec(currentList)) !== null) {
+        recipeItems.push({ file: match[1], name: match[2] });
     }
 
-    const newRecipesArray = `const recipes = [${newArray}];`;
-    indexContent = indexContent.replace(/const recipes = \[[\s\S]*?\];/, newRecipesArray);
+    // Add new recipe
+    recipeItems.push({ file: filename, name: recipeName });
+
+    // Generate new HTML list
+    const newListHTML = '\n            <div class="recipe-list">\n' +
+        recipeItems.map(recipe =>
+            `                <div class="recipe-item">\n                    <a href="recipes/${recipe.file}">${recipe.name}</a>\n                </div>`
+        ).join('\n') +
+        '\n            </div>\n            ';
+
+    // Reconstruct index.html
+    indexContent = beforeList + newListHTML + afterList;
 
     fs.writeFileSync(indexPath, indexContent, 'utf8');
     return true;
